@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Te la dedico — corazón con frases</title>
+  <style>
+    :root{
+      --bg1:#ffe6f0;
+      --bg2:#fff9ff;
+      --primary:#ff4d6d;
+      --primary-dark:#e03a59;
+      --text:#2b2b2b;
+      --shadow:0 10px 30px rgba(0,0,0,.08);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      color:var(--text);
+      background: radial-gradient(1200px 800px at 20% -10%, var(--bg2), var(--bg1));
+    }
+
+    .topbar{
+      position:sticky; top:0; z-index:5;
+      background:rgba(255,255,255,.7);
+      backdrop-filter:saturate(150%) blur(8px);
+      box-shadow:var(--shadow);
+      padding:14px clamp(12px, 2.5vw, 28px);
+      display:flex; align-items:center; gap:14px;
+      border-bottom:1px solid rgba(0,0,0,.04);
+    }
+    .title{
+      font-weight:800; letter-spacing:.3px;
+      display:flex; align-items:center; gap:10px;
+      font-size: clamp(18px, 2.4vw, 26px);
+    }
+    .heart-chip{
+      display:inline-grid; place-items:center; width:28px; height:28px;
+      background: linear-gradient(140deg, var(--primary), #ff7b9a);
+      color:#fff; border-radius:999px; font-size:16px;
+      box-shadow:0 6px 16px rgba(255,77,109,.35);
+    }
+    .player{
+      margin-left:auto; display:flex; align-items:center; gap:10px; flex:1;
+    }
+    .btn{ border:0; cursor:pointer; border-radius:999px; padding:10px 14px; font-weight:700; color:#fff;
+      background:linear-gradient(140deg, var(--primary), #ff7b9a); box-shadow:0 10px 20px rgba(255,77,109,.35);
+      transition: transform .08s ease;
+    }
+    .btn:active{ transform:scale(.98) }
+    .track{ font-size:12px; color:#555; max-width:28ch; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+    .progress-wrap{ flex:1; min-width:140px; display:flex; align-items:center; gap:8px }
+    .progress{ appearance:none; width:100%; height:6px; border-radius:999px; background:#ffe0e7; }
+    .time{ font-variant-numeric: tabular-nums; font-size:12px; color:#777 }
+
+    .wrap{ max-width:800px; margin: 24px auto; padding: 0 18px; }
+    .stage{ position:relative; min-height:70vh; display:grid; place-items:center; overflow:hidden; border-radius: calc(var(--radius) - 4px); background: linear-gradient(180deg, #fff, #ffeef3); }
+
+    /* CORAZÓN REAL */
+    .heart-btn {
+      position: relative;
+      width: 160px;
+      height: 145px;
+      background: var(--primary);
+      transform: rotate(-45deg);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 16px 40px rgba(255,77,109,.4), inset 0 -10px 18px rgba(0,0,0,.1);
+      transition: transform 0.1s ease;
+      animation: beat 3s infinite;
+    }
+    .heart-btn:before,
+    .heart-btn:after {
+      content: "";
+      position: absolute;
+      width: 160px;
+      height: 145px;
+      background: var(--primary);
+      border-radius: 50%;
+    }
+    .heart-btn:before {
+      top: -80px;
+      left: 0;
+    }
+    .heart-btn:after {
+      left: 80px;
+      top: 0;
+    }
+    .heart-btn:active {
+      transform: scale(.95) rotate(-45deg);
+    }
+    @keyframes beat {
+      0%, 20%, 40%, 60%, 80%, 100% { transform: scale(1) rotate(-45deg); }
+      10%, 30%, 50%, 70%, 90% { transform: scale(1.15) rotate(-45deg); }
+    }
+
+    .hint{ 
+      position:absolute; 
+      bottom:-35px; 
+      left:50%; 
+      transform:translateX(-50%) rotate(45deg); 
+      font-weight:700; 
+      color:#7b2431; 
+      opacity:.7 
+    }
+
+    .bubble{
+      position:absolute; left:0; top:0; pointer-events:none;
+      background:#fff; border:1px solid rgba(0,0,0,.07);
+      padding:10px 14px; border-radius:18px; box-shadow: var(--shadow);
+      font-weight:700;
+      transform: translate(-50%, -50%);
+      opacity:0;
+      animation: pop-and-fall var(--dur, 5s) cubic-bezier(.22,.8,.24,.99) forwards;
+      will-change: transform, opacity;
+    }
+    .bubble::after{
+      content:""; position:absolute; left:14px; bottom:-9px; width:16px; height:16px; background:#fff; border-left:1px solid rgba(0,0,0,.07); border-bottom:1px solid rgba(0,0,0,.07); transform: rotate(45deg);
+    }
+    @keyframes pop-and-fall{
+      0%{ opacity:0; transform: translate(var(--x,0), var(--y,0)) scale(.7); }
+      12%{ opacity:1; transform: translate(calc(var(--x,0) + 0px), calc(var(--y,0) - 30px)) scale(1); }
+      100%{ opacity:0; transform: translate(calc(var(--x,0) + var(--drift, 40px)), calc(var(--y,0) + var(--fall, 55vh))); }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="title">
+      <span class="heart-chip">❤</span>
+      <span>Te la dedico</span>
+    </div>
+    <div class="player">
+      <button id="playBtn" class="btn">▶︎ Reproducir</button>
+      <div class="progress-wrap">
+        <input id="seek" class="progress" type="range" min="0" max="100" value="0" step="0.1" />
+        <div class="time"><span id="cur">0:00</span>/<span id="dur">0:00</span></div>
+      </div>
+      <div class="track" id="trackName">Mi canción especial</div>
+      <audio id="audio" src="happy.mp3"></audio>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="stage" id="stage">
+      <button id="heart" class="heart-btn" aria-label="Enviar frase">
+        <div class="hint">Toca el corazón</div>
+      </button>
+    </section>
+  </main>
+
+  <script>
+    const audio = document.getElementById('audio');
+    const playBtn = document.getElementById('playBtn');
+    const seek = document.getElementById('seek');
+    const curEl = document.getElementById('cur');
+    const durEl = document.getElementById('dur');
+
+    const fmt = (t) => {
+      if (!Number.isFinite(t)) return '0:00';
+      const m = Math.floor(t/60);
+      const s = Math.floor(t%60).toString().padStart(2,'0');
+      return `${m}:${s}`;
+    }
+
+    playBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+      } else {
+        audio.pause();
+      }
+    });
+
+    audio.addEventListener('play', ()=> playBtn.textContent = '⏸️ Pausar');
+    audio.addEventListener('pause', ()=> playBtn.textContent = '▶︎ Reproducir');
+    audio.addEventListener('loadedmetadata', ()=> durEl.textContent = fmt(audio.duration));
+    audio.addEventListener('timeupdate', ()=> {
+      curEl.textContent = fmt(audio.currentTime);
+      seek.value = (audio.currentTime / (audio.duration||1) * 100) || 0;
+    });
+
+    seek.addEventListener('input', ()=>{
+      const pct = parseFloat(seek.value) / 100;
+      audio.currentTime = pct * (audio.duration||0);
+    });
+
+    // Frases fijas
+    const phrases = [
+      'Eres mi lugar favorito 💫',
+      'Tu sonrisa es mi canción 🎶',
+      'Contigo todo late mejor ❤️',
+      'Eres mi casualidad favorita 🌙',
+      'Me haces bien, mucho bien 🍓',
+      'Quiero siempre contigo ☁️',
+      'Estoy muy orgullo de ti mi niño 💘',
+      'Te amo mucho mi ojitos bonitos 💟',
+      'Tu eres mi bailarin favorito 🕺',
+      'Bicho tambien te ama mucho 😺',
+      'Tus ojitos son los mas bellos del mundo 🌎',
+     'Gracias por existir 🌷',
+      'Me encantas tal cual ✨',
+      'Hoy te pienso bonito ☀️',
+      'Abracito para el alma 🤍',
+      'Dice bicho que eres un gran papá 😽',
+    ];
+
+    const stage = document.getElementById('stage');
+    const heart = document.getElementById('heart');
+
+    const launchBubble = () => {
+      const text = phrases[Math.floor(Math.random()*phrases.length)];
+      const rectStage = stage.getBoundingClientRect();
+      const rectHeart = heart.getBoundingClientRect();
+      const startX = rectHeart.left + rectHeart.width/2 - rectStage.left;
+      const startY = rectHeart.top + rectHeart.height*0.35 - rectStage.top;
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = text;
+
+      const fontSize = Math.round(16 + Math.random()*12);
+      const dur = 5 + Math.random()*3;
+      const drift = (Math.random() * 240 - 120) + 'px';
+      const fall = (50 + Math.random()*22) + 'vh';
+
+      bubble.style.left = startX + 'px';
+      bubble.style.top = startY + 'px';
+      bubble.style.fontSize = fontSize + 'px';
+      bubble.style.setProperty('--x', '-50%');
+      bubble.style.setProperty('--y', '-50%');
+      bubble.style.setProperty('--dur', dur + 's');
+      bubble.style.setProperty('--drift', drift);
+      bubble.style.setProperty('--fall', fall);
+
+      stage.appendChild(bubble);
+      bubble.addEventListener('animationend', ()=> bubble.remove());
+    };
+
+    heart.addEventListener('click', ()=>{
+      const n = 1 + Math.floor(Math.random()*3);
+      for (let i=0;i<n;i++) setTimeout(launchBubble, i*180);
+    });
+  </script>
+</body>
+</html>
